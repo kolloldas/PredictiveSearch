@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Predictive Search Demo</string>
+    <string name="action_qwerty">Qwerty Keypad</string>
+    <string name="action_numpad">Number Keypad</string>
+</resources>
