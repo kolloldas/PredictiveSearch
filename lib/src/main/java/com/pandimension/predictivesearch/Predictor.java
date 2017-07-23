@@ -93,6 +93,9 @@ public class Predictor {
         // Prevent duplicates from being added
         if(mIndexMap.containsKey(item.getId()))
             return;
+        // Cannot add items without labels being set
+        if(mLabels == null)
+            return;
         synchronized (this) {
 
             int level = mLabels.size();
