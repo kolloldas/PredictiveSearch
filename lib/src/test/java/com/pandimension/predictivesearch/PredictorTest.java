@@ -74,6 +74,17 @@ class TestDataItem implements DataItem {
 }
 
 public class PredictorTest {
+
+    @Test
+    public void testImproperUse() throws Exception {
+        Predictor predictor = new Predictor(Predictor.InputType.NUMBER_KEYPAD);
+        // Should not crash
+        predictor.addItem(new TestDataItem("John Doe", "987654321", "1234"));
+
+        //Should not crash
+        predictor.predict("321");
+    }
+
     /* Number keypad predictor */
     @Test
     public void testCreation() throws Exception {

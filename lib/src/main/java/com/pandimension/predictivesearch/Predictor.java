@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TreeSet;
 
 /**
@@ -58,16 +59,15 @@ public class Predictor {
     private LinkedHashMap<String, DataItem.FieldType> mLabels;
     private HashMap<String, LinkedList<Integer>> mIndexMap;
     private ArrayList<Prediction> mPredictions;
-    private HashSet<Integer>[][] mPartitions;
+    private LinkedList<HashSet<Integer>[]> mPartitions;
 
     /**
      * Constructor for the class
      * @param inputType Type of inputs that will be handled
      */
-    @SuppressWarnings("unchecked")
     public Predictor(InputType inputType){
         mInputType = inputType;
-        mPartitions = new HashSet[MAX_ITEM_LENGTH][maxKeyLength(inputType)];
+        mPartitions = new LinkedList<>();
         mPredictions = new ArrayList<Prediction>(MAX_ITEMS);
         mIndexMap = new HashMap<String, LinkedList<Integer>>();
     }
@@ -140,14 +140,14 @@ public class Predictor {
             if(mIndexMap.containsKey(id)){
                 for(int index: mIndexMap.get(id)){
                     Prediction p = mPredictions.get(index);
-                    int pos = 0;
+                    ListIterator<HashSet<Integer>[]> iterator = mPartitions.listIterator();
                     for(char c: p.getEncoding().toCharArray()){
                         int i = mapInput(c);
                         if(i == -1) continue;
-                        if(mPartitions[pos][i] != null){
-                            mPartitions[pos][i].remove(index);
+                        HashSet<Integer>[] col = iterator.next();
+                        if(col[i] != null){
+                            col[i].remove(index);
                         }
-                        pos++;
                     }
                     mPredictions.set(index, null);
                 }
@@ -185,27 +185,30 @@ public class Predictor {
 
         synchronized (this) {
             TreeSet<Prediction> predictions = new TreeSet<Prediction>();
-
+            ListIterator<HashSet<Integer>[]> iterator = mPartitions.listIterator();
             int pos = 0;
+
             HashSet<Integer> partition = null;
 
             for(char c: query.toCharArray()){
                 int i = mapInput(c);
                 if(i == -1) continue;
 
-                if(mPartitions[pos][i] == null) {
+                if(!iterator.hasNext())
+                    break;
+                HashSet<Integer>[] col = iterator.next();
+
+                if(col[i] == null) {
                     partition = null;
                     break;
                 }
 
                 if(partition == null)
-                    partition = new HashSet<Integer>(mPartitions[pos][i]);
+                    partition = new HashSet<Integer>(col[i]);
                 else
-                    partition.retainAll(mPartitions[pos][i]);
+                    partition.retainAll(col[i]);
 
                 pos++;
-                if(pos >= MAX_ITEM_LENGTH)
-                    break;
             }
 
             if(partition != null && !partition.isEmpty()){
@@ -241,15 +244,23 @@ public class Predictor {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void addToPartitions(String encoding, int index){
-        int pos = 0;
+        ListIterator<HashSet<Integer>[]> iterator = mPartitions.listIterator();
         for(char c: encoding.toCharArray()){
             int i = mapInput(c);
             if(i == -1) continue;
-            if(mPartitions[pos][i] == null)
-                mPartitions[pos][i] = new HashSet<Integer>();
-            mPartitions[pos][i].add(index);
-            pos++;
+
+            HashSet<Integer>[] col = null;
+            if(iterator.hasNext()) {
+                col = iterator.next();
+            }else{
+                col = new HashSet[maxKeyLength(mInputType)];
+                iterator.add(col);
+            }
+            if(col[i] == null)
+                col[i] = new HashSet<Integer>();
+            col[i].add(index);
         }
     }
 
