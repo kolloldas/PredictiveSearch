@@ -101,7 +101,7 @@ It also provides auxillary information like which field type was matched and ali
 the Android demo on how to use this information to highlight the results.
 
 ## Apps using this library
-This library is currently used by the [Indian Caller Info](https://play.google.com/store/apps/details?id=ardent.androidapps.callerinfo.views&hl=en) Android app
+This library is currently used by the [Indian Caller Info](https://play.google.com/store/apps/details?id=ardent.androidapps.callerinfo.views&hl=en) and [Smart Dialer](https://play.google.com/store/apps/details?id=ingris.quick.dialer.speed&hl=en) Android apps
 
 Please let me know if you have used this library and I would love to include your app here!
 
