@@ -16,6 +16,8 @@
 
 package com.pandimension.predictivesearch;
 
+import com.sun.istack.internal.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +68,7 @@ public class Prediction implements Comparable<Prediction> {
 
     /**
      * Get the label that the prediction matched to
-     * @return
+     * @return The label
      */
     public String getLabel(){
         return mLabel;
@@ -87,25 +89,31 @@ public class Prediction implements Comparable<Prediction> {
 
     /**
      * Get the alignment for the match i.e. the positions for the match which you can highlight
-     * @return
+     * @return List of positions
      */
     public List<Integer> getAlignment(){
         return mAlignment.subList(0, mExtent);
     }
 
     public int compareTo(Prediction other) {
-        int d = other.mLevel - mLevel;
-        if(equals(other)) d = 0;
+        int d = equals(other) ? 0 : other.mLevel - mLevel;
         if(d == 0) d = mItem.compareTo(other.mItem);
         return d;
     }
 
     @Override
     public boolean equals(Object arg0) {
-        Prediction other = (Prediction)arg0;
-        //return other.mLevel == mLevel;
-        return mItem.equals(other.mItem);
+        if(arg0 instanceof Prediction) {
+            Prediction other = (Prediction) arg0;
+            return mItem.equals(other.mItem);
+        }else{
+            return false;
+        }
     }
 
+    @Override
+    public int hashCode(){
+        return mItem.hashCode();
+    }
 
 }
